@@ -68,7 +68,7 @@
     <!-- 输入区域 -->
     <div class="max-w-2xl mx-auto mb-8">
       <div class="bg-white rounded-3xl shadow-lg p-6 transform transition hover:scale-105">
-        <div class="flex gap-3">
+        <div class="flex gap-3 mb-3">
           <input 
             v-model="newFood"
             @keyup.enter="submitFood"
@@ -84,8 +84,41 @@
             {{ loading ? '提交中...' : '提交' }} 🎉
           </button>
         </div>
+        <div class="flex gap-3">
+          <button 
+            @click="randomRecommend"
+            class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-400 to-blue-400 text-white rounded-2xl font-bold text-base hover:from-purple-500 hover:to-blue-500 transition shadow-lg flex items-center justify-center gap-2"
+          >
+            🎲 不知道吃什么？随机推荐！
+          </button>
+        </div>
         <p v-if="successMessage" class="text-green-500 mt-3 text-center animate-celebrate">{{ successMessage }}</p>
         <p v-if="errorMessage" class="text-red-500 mt-3 text-center">{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <!-- 随机推荐弹窗 -->
+    <div v-if="showRecommend" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeRecommend">
+      <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-sm mx-4 transform transition-all animate-pop" @click.stop>
+        <div class="text-center">
+          <div class="text-6xl mb-4 animate-float">{{ recommendFood.emoji }}</div>
+          <h3 class="text-2xl font-bold text-orange-500 mb-2">{{ recommendFood.name }}</h3>
+          <p class="text-orange-300 mb-6">{{ recommendFood.slogan }}</p>
+          <div class="flex gap-3">
+            <button 
+              @click="randomRecommend"
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-400 to-blue-400 text-white rounded-2xl font-bold hover:from-purple-500 hover:to-blue-500 transition"
+            >
+              换一个 🔄
+            </button>
+            <button 
+              @click="closeRecommend"
+              class="flex-1 px-6 py-3 bg-gradient-to-r from-orange-400 to-pink-400 text-white rounded-2xl font-bold hover:from-orange-500 hover:to-pink-500 transition"
+            >
+              就它了！✅
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -176,10 +209,52 @@
             unique: 0,
             date: '',
             rankings: []
-          }
+          },
+          showRecommend: false,
+          recommendFood: { name: '', emoji: '', slogan: '' }
         }
       },
       methods: {
+        randomRecommend() {
+          const foods = [
+            { name: '兰州拉面', emoji: '🍜', slogan: '汤清味鲜，暖胃暖心！' },
+            { name: '重庆小面', emoji: '🍜', slogan: '麻辣鲜香，巴适得板！' },
+            { name: '鸡公煲', emoji: '🍲', slogan: '鲜嫩多汁，下饭神器！' },
+            { name: '毛血旺', emoji: '🌶️', slogan: '麻辣过瘾，爽翻天！' },
+            { name: '黄焖鸡米饭', emoji: '🍛', slogan: '经典搭配，百吃不厌！' },
+            { name: '鱼香肉丝', emoji: '🍛', slogan: '酸甜可口，家常美味！' },
+            { name: '宫保鸡丁', emoji: '🍗', slogan: '鲜香麻辣，回味无穷！' },
+            { name: '麻婆豆腐', emoji: '🍲', slogan: '麻辣鲜香，嫩滑入味！' },
+            { name: '螺蛳粉', emoji: '🍜', slogan: '臭香臭香，越吃越香！' },
+            { name: '酸菜鱼', emoji: '🐟', slogan: '酸辣开胃，鲜嫩爽滑！' },
+            { name: '水煮肉片', emoji: '🥩', slogan: '麻辣鲜香，肉质滑嫩！' },
+            { name: '回锅肉', emoji: '🥓', slogan: '肥而不腻，经典川菜！' },
+            { name: '糖醋里脊', emoji: '🍖', slogan: '酸甜酥脆，老少皆宜！' },
+            { name: '红烧肉', emoji: '🥩', slogan: '肥瘦相间，入口即化！' },
+            { name: '炸鸡汉堡', emoji: '🍔', slogan: '酥脆多汁，快乐加倍！' },
+            { name: '披萨', emoji: '🍕', slogan: '拉丝芝士，满足感爆棚！' },
+            { name: '寿司', emoji: '🍣', slogan: '新鲜美味，健康轻食！' },
+            { name: '炒饭', emoji: '🍚', slogan: '粒粒分明，简单满足！' },
+            { name: '饺子', emoji: '🥟', slogan: '皮薄馅大，家的味道！' },
+            { name: '包子', emoji: '🥠', slogan: '松软可口，早餐必备！' },
+            { name: '麻辣烫', emoji: '🍲', slogan: '想吃什么烫什么！' },
+            { name: '串串香', emoji: '🍢', slogan: '数签签，数快乐！' },
+            { name: '烤串', emoji: '🍖', slogan: '撸串喝酒，人生赢家！' },
+            { name: '凉皮', emoji: '🍜', slogan: '清爽开胃，夏日必备！' },
+            { name: '肉夹馍', emoji: '🥙', slogan: '中国汉堡，香飘四溢！' },
+            { name: '煎饼果子', emoji: '🥞', slogan: '早餐经典，外酥里嫩！' },
+            { name: '豆浆油条', emoji: '🥛', slogan: '传统搭配，经典早餐！' },
+            { name: '米粉', emoji: '🍜', slogan: '爽滑细腻，汤鲜味美！' },
+            { name: '馄饨', emoji: '🥟', slogan: '皮薄汤鲜，暖心暖胃！' },
+            { name: '牛肉面', emoji: '🍜', slogan: '肉烂汤浓，回味无穷！' },
+          ];
+          const randomIndex = Math.floor(Math.random() * foods.length);
+          this.recommendFood = foods[randomIndex];
+          this.showRecommend = true;
+        },
+        closeRecommend() {
+          this.showRecommend = false;
+        },
         async submitFood() {
           if (!this.newFood.trim()) {
             this.errorMessage = '请输入食物名称哦～🍜';

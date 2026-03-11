@@ -1,0 +1,18 @@
+{
+  "name": "chishenme",
+  "version": "1.0.0",
+  "description": "吃什么？- 今天吃什么？看看别人吃了什么！",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["food", "what-to-eat", "vue3"],
+  "author": "lansongfu",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "node-cron": "^3.0.3"
+  }
+}
